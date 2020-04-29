@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -8,7 +9,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 
 #initialize database
 db = SQLAlchemy(app)
-
+api_key = os.environ.get('STEAM_API')
 #model for database
 class Todo(db.Model):
 
