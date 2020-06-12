@@ -1,4 +1,6 @@
 import os
+import re
+import json
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -9,7 +11,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 
 #initialize database
 db = SQLAlchemy(app)
-api_key = os.environ.get('STEAM_API')
+api_key = os.environ.get('STEAM_API_KEY')
+
 #model for database
 class Todo(db.Model):
 
@@ -41,6 +44,35 @@ def index():
     else:
         tasks = Todo.query.order_by(Todo.data_created).all()
         return render_template('index.html', tasks=tasks)
+
+@app.route('/login', methods=['POST','GET'])
+def login():
+    pass
+
+#This will search for STEAM_ID and save it to a cookie
+@app.route('/search', methods=['GET'])
+def search():
+    if request.method == 'GET':
+        search_content = request.form['name']
+
+        try:
+            pattern1 = 'http://steamcommunity.com/id/'
+            pattern2 = 'http://steamcommunity.com/profile/'
+
+            if search_content.startswith(pattern1):
+                vanityurl = search_content[len(pattern1):]
+
+            elif search_content.startswith(pattern2):
+                vanityurl = startswith[len(pattern2):]
+
+            if vanityurl[len(vanityurl)-1] == '/':
+                vanityurl=vanityurl[:-1]
+
+            response = request.get('http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/', params={'vanityurl':vanityurl})
+            print(response.json())
+        except:
+            print("An Error has occured")
+
 
 @app.route('/delete/<int:id>')
 def deleteTask(id):
