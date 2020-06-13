@@ -50,11 +50,10 @@ def login():
     pass
 
 #This will search for STEAM_ID and save it to a cookie
-@app.route('/search', methods=['GET'])
+@app.route('/search', methods=['POST','GET'])
 def search():
-    if request.method == 'GET':
+    if request.method == 'POST':
         search_content = request.form['name']
-
         try:
             pattern1 = 'http://steamcommunity.com/id/'
             pattern2 = 'http://steamcommunity.com/profile/'
@@ -62,16 +61,25 @@ def search():
             if search_content.startswith(pattern1):
                 vanityurl = search_content[len(pattern1):]
 
+                if vanityurl[len(vanityurl)-1] == '/':
+                    vanityurl=vanityurl[:-1]
+
+
             elif search_content.startswith(pattern2):
                 vanityurl = startswith[len(pattern2):]
 
-            if vanityurl[len(vanityurl)-1] == '/':
-                vanityurl=vanityurl[:-1]
+                if vanityurl[len(vanityurl)-1] == '/':
+                    vanityurl=vanityurl[:-1]
 
-            response = request.get('http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/', params={'vanityurl':vanityurl})
-            print(response.json())
+                response = request.get('http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/', params={'vanityurl':vanityurl})
+                info = response.json()
+                print(info)
+                return render_template('search.html', infos = info)
+
         except:
             print("An Error has occured")
+    else:
+        return render_template('search.html')
 
 
 @app.route('/delete/<int:id>')
